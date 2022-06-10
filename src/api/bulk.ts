@@ -1037,11 +1037,77 @@ export class JobV2<
   }
 
   close(): Promise<void> {
-    throw new Error('needs to be implemented');
+    const bulk = this._bulk;
+    (async () => {
+      // TODO: aborted version/very different from close, but adjacent
+      // try {
+      //   const jobInfo = await this.state('Aborted');
+      //   const res = await bulk._request<JobInfoV2>({
+      //     method: 'PATCH',
+      //     path: 'jobs/ingest/' + this.id,
+      //     body: '',
+      //     headers: {
+      //       'Content-Type': 'application/json; charset=utf-8',
+      //     },
+      //     responseType: 'application/json'
+      //   })
+      //   this.emit('aborted', res);
+      //   this.id = res.id;
+      //   this.state = res.state;
+      // }
+      try {
+        // uploadcomplete / done
+        const res = await bulk._request<JobInfoV2>({
+          method: 'PATCH',
+          path: 'jobs/ingest/' + this.id,
+          body: '',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+          responseType: 'application/json'
+        })
+        this.emit('uploadcomplete', res);
+        this.id = res.id;
+        this.state = res.state;
+      } catch (err) {
+        this.emit('error', err);
+        throw new Error('not blessed');
+      }
+    })();
   }
 
   getSuccessfulRecordResults(): Promise<Record[]> {
-    throw new Error('needs to be implemented');
+    const bulk = this._bulk;
+    if (!this.id) {
+      throw new Error('No valid jobId');
+    }
+    try {
+      (async () => {
+        // TODO: will need to do a upload stream from csv -> record
+        const recordStream = new Parsable();
+        const dataStream = recordStream.stream('csv');
+
+        try {
+          const res = await bulk._request<JobInfoV2>({
+            method: 'GET',
+            path: 'jobs/ingest/' + this.id,
+            body: '',
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+            },
+            responseType: 'application/json'
+          });
+          this.emit('uploadcomplete', res);
+          // TODO: first step :get the stream of the data
+          // TODO: second step :will now stream -> record
+        } catch (err) {
+          throw new Error('did not work');
+        }
+      })();
+
+    } catch (err) {
+      throw new Error('needs to be implemented');
+    }
   }
 }
 
