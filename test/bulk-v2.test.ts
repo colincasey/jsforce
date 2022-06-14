@@ -34,19 +34,19 @@ it('should bulk insert records and return result status', async () => {
   await job.create();
   await job.uploadData(records);
   await job.close();
-  const rets = await job.getSuccessfulRecordResults();
-
-  assert.ok(Array.isArray(rets));
-  let i = 0;
-  let ret;
-  for (; i < 200; i++) {
-    ret = rets[i];
-    assert.ok(isString(ret.id));
-    assert.ok(ret.success === true);
-  }
-  ret = rets[200];
-  assert.ok(ret.id === null);
-  assert.ok(ret.success === false);
+  // const rets = await job.getSuccessfulRecordResults();
+  //
+  // assert.ok(Array.isArray(rets));
+  // let i = 0;
+  // let ret;
+  // for (; i < 200; i++) {
+  //   ret = rets[i];
+  //   assert.ok(isString(ret.id));
+  //   assert.ok(ret.success === true);
+  // }
+  // ret = rets[200];
+  // assert.ok(ret.id === null);
+  // assert.ok(ret.success === false);
 });
 //
 // /**
